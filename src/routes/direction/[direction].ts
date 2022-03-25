@@ -1,11 +1,11 @@
 import type TrainAnnouncement from './TrainAnnouncement';
 
-export async function get() {
+export async function get({ params }) {
   const response = await fetch(
     'https://api.trafikinfo.trafikverket.se/v2/data.json',
     {
       method: 'POST',
-      body: getBody({ direction: 'n' }),
+      body: getBody({ direction: params.direction }),
       headers: {
         'Content-Type': 'application/xml',
         Accept: 'application/json',
@@ -42,7 +42,7 @@ function getBody({ direction }) {
             <EQ name='ActivityType' value='Avgang'/>
             <OR>
                 <EQ name='LocationSignature' value='${
-                  direction === 'n' ? 'Tu' : 'Khä'
+                  direction === 'north' ? 'Tu' : 'Khä'
                 }'/>
             </OR>
         </FILTER>
