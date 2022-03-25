@@ -5,6 +5,21 @@
   function hhmm(AdvertisedTimeAtLocation: string) {
     return AdvertisedTimeAtLocation?.substring(11, 16);
   }
+
+  function from(s: string) {
+    switch (s) {
+      case 'Tu':
+        return 'Tumba';
+      case 'Khä':
+        return 'Kallhäll';
+      default:
+        return s;
+    }
+  }
+
+  function to(a) {
+    return a.map(({ LocationName }) => from(LocationName));
+  }
 </script>
 
 <div>
@@ -12,19 +27,25 @@
     {#if Canceled}
       <div>
         {AdvertisedTrainIdent}
-        {hhmm(AdvertisedTimeAtLocation)} från {LocationSignature} till {'kallhäll'}
+        {hhmm(AdvertisedTimeAtLocation)} från {from(LocationSignature)} till {to(
+          ToLocation
+        )}
         är inställt
       </div>
     {:else if TimeAtLocation}
       <div>
         {AdvertisedTrainIdent}
-        {hhmm(AdvertisedTimeAtLocation)} från {LocationSignature} till {'kallhäll'}
+        {hhmm(AdvertisedTimeAtLocation)} från {from(LocationSignature)} till {to(
+          ToLocation
+        )}
         gick {hhmm(TimeAtLocation)}
       </div>
     {:else}
       <div>
         {AdvertisedTrainIdent}
-        {hhmm(AdvertisedTimeAtLocation)} från {LocationSignature} till {'kallhäll'}
+        {hhmm(AdvertisedTimeAtLocation)} från {from(LocationSignature)} till {to(
+          ToLocation
+        )}
         ska gå som vanligt
       </div>
     {/if}
