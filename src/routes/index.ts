@@ -1,11 +1,11 @@
 import type TrainAnnouncement from './TrainAnnouncement';
 
-export async function get({ params }) {
+export async function get() {
   const response = await fetch(
     'https://api.trafikinfo.trafikverket.se/v2/data.json',
     {
       method: 'POST',
-      body: getBody({ direction: params.direction }),
+      body: getBody(),
       headers: {
         'Content-Type': 'application/xml',
         Accept: 'application/json',
@@ -22,28 +22,23 @@ export async function get({ params }) {
 
   const data = await response.json();
   const [body] = data.RESPONSE.RESULT;
-  const announcements: TrainAnnouncement[] = body.TrainAnnouncement.filter(
-    ({ ProductInformation }) =>
-      ProductInformation?.some(
-        ({ Description }) => Description === 'SL Pendeltåg'
-      ) && ProductInformation?.some(({ Description }) => Description === '44')
-  );
+  const announcements: TrainAnnouncement[] = body.TrainAnnouncement;
   return { body: { announcements } };
 }
 
-function getBody({ direction }) {
+function getBody() {
   return `
 <REQUEST>
     <LOGIN authenticationkey='${process.env.TRAFIKVERKET_API_KEY}'/>
     <QUERY sseurl='false' objecttype='TrainAnnouncement' schemaversion='1.6'>
         <FILTER>
-            <GT name='AdvertisedTimeAtLocation' value='$dateadd(-0.04:00:00)'/>
-            <LT name='AdvertisedTimeAtLocation' value='$dateadd(0.04:00:00)'/>
+            <GT name='AdvertisedTimeAtLocation' value='$dateadd(-0.01:00:00)'/>
+            <LT name='AdvertisedTimeAtLocation' value='$dateadd(0.20:00:00)'/>
+            <EQ name='Canceled' value='true'/>
             <EQ name='ActivityType' value='Avgang'/>
             <OR>
-                <EQ name='LocationSignature' value='${
-                  direction === 'north' ? 'Tu' : 'Khä'
-                }'/>
+              <EQ name='LocationSignature' value='Mr'/>
+              <EQ name='LocationSignature' value='Tul'/>
             </OR>
         </FILTER>
         <INCLUDE>AdvertisedTrainIdent</INCLUDE>
@@ -53,6 +48,7 @@ function getBody({ direction }) {
         <INCLUDE>ProductInformation</INCLUDE>
         <INCLUDE>TimeAtLocation</INCLUDE>
         <INCLUDE>ToLocation</INCLUDE>
+        <INCLUDE>FromLocation</INCLUDE>
     </QUERY>
 </REQUEST>
 `;
