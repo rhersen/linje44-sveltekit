@@ -25,6 +25,7 @@
 </script>
 
 <div>
+  <h1>{announcements.length} inställda tåg</h1>
   {#each announcements as { AdvertisedTrainIdent, AdvertisedTimeAtLocation, TimeAtLocation, Canceled, LocationSignature, ToLocation }}
     <div>
       {AdvertisedTrainIdent}
